@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
+/* Keynotes design tokens — taken from the reference design:
+   warm off-white surfaces, amber accent, rounded geometry. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f2;      /* warm page background */
+  --surface: #ffffff;         /* sidebar / panels */
+  --card: #f5f1e8;            /* note card, idle */
+  --card-active: #f0a63c;     /* note card, selected (amber) */
+  --accent: #e9a23b;          /* amber for links, tags, buttons */
+  --foreground: #22211f;
+  --muted: #a29d92;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-card-active: var(--card-active);
+  --color-accent: var(--accent);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-muted: var(--muted);
+  --font-sans: var(--font-quicksand);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
+}
+
+/* Rendered markdown inside the note editor. */
+.markdown {
+  line-height: 1.7;
+  font-size: 1rem;
+}
+.markdown > * + * {
+  margin-top: 0.75em;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.25em;
+}
+.markdown h1 { font-size: 1.6rem; }
+.markdown h2 { font-size: 1.35rem; }
+.markdown h3 { font-size: 1.15rem; }
+.markdown a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.markdown ul,
+.markdown ol {
+  padding-left: 1.4em;
+}
+.markdown ul { list-style: disc; }
+.markdown ol { list-style: decimal; }
+.markdown li + li { margin-top: 0.3em; }
+.markdown blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1em;
+  color: var(--muted);
+}
+.markdown code {
+  background: var(--card);
+  border-radius: 6px;
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.markdown pre {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1em;
+  overflow-x: auto;
+}
+.markdown pre code {
+  background: none;
+  padding: 0;
+}
+.markdown hr {
+  border-color: #e7e2d6;
+}
+.markdown table {
+  border-collapse: collapse;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #e7e2d6;
+  padding: 0.4em 0.8em;
+  text-align: left;
+}
+.markdown input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin-right: 0.45em;
+}
+.markdown ul:has(input[type="checkbox"]) {
+  list-style: none;
+  padding-left: 0.2em;
+}
+
+/* TipTap inline editor */
+.tiptap {
+  min-height: 100%;
+  outline: none;
+}
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.markdown ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.2em;
+}
+.markdown ul[data-type="taskList"] li {
+  display: flex;
+  gap: 0.5em;
+  align-items: flex-start;
+}
+.markdown ul[data-type="taskList"] li > label {
+  display: flex;
+  align-items: center;
+}
+.markdown ul[data-type="taskList"] li > div {
+  flex: 1;
 }
