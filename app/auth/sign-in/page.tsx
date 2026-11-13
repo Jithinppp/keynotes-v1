@@ -89,15 +89,15 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen flex-1 items-center justify-center bg-background px-6">
-      <div className="w-full max-w-sm rounded-3xl bg-surface p-9 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.25)]">
+      <div className="w-full max-w-sm rounded-3xl border border-[var(--hairline)] bg-surface p-9 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.25)]">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-card-active">
             <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5 text-white" aria-hidden>
               <path
-                d="M10 3.5c2.5 0 4.5 1.8 4.5 4.2 0 1.7-.9 2.9-2.1 3.9l-2.4 1.9-2.4-1.9C6.4 10.6 5.5 9.4 5.5 7.7 5.5 5.3 7.5 3.5 10 3.5Z"
+                d="M13.8 2.7 5 11.5v3h3l8.9-8.8c.5-.5.5-1.3 0-1.8l-1.3-1.2a1.27 1.27 0 0 0-1.8 0Z"
                 fill="currentColor"
               />
-              <path d="M10 13v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M4 17.5h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </span>
           <span className="text-xl font-bold tracking-tight">Keynotes</span>
@@ -125,9 +125,9 @@ export default function SignInPage() {
         </button>
 
         <div className="my-6 flex items-center gap-3 text-xs text-muted">
-          <span className="h-px flex-1 bg-[#eceadf]" />
+          <span className="h-px flex-1 bg-[var(--hairline)]" />
           or with email
-          <span className="h-px flex-1 bg-[#eceadf]" />
+          <span className="h-px flex-1 bg-[var(--hairline)]" />
         </div>
 
         <form onSubmit={withPassword} className="flex flex-col gap-3">

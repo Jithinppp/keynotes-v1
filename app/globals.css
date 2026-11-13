@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
-/* Keynotes design tokens — taken from the reference design:
-   warm off-white surfaces, amber accent, rounded geometry. */
+/* Keynotes design tokens — white workspace, hairline dividers, amber accent. */
 :root {
-  --background: #faf8f2;      /* warm page background */
-  --surface: #ffffff;         /* sidebar / panels */
-  --card: #f5f1e8;            /* note card, idle */
-  --card-active: #f0a63c;     /* note card, selected (amber) */
-  --accent: #e9a23b;          /* amber for links, tags, buttons */
-  --foreground: #22211f;
-  --muted: #a29d92;
+  --background: #ffffff;      /* page background */
+  --surface: #fafafa;         /* sidebar / details panel */
+  --card: #f3f3f1;            /* hover fill, code chip */
+  --card-active: #f0b64c;     /* amber accent (fills) */
+  --accent: #945e0c;          /* amber for links, tags (text-safe on white) */
+  --foreground: #1c1c1b;
+  --muted: #73736f;
+  --hairline: #eeeeec;
 }
 
 @theme inline {
@@ -29,23 +29,30 @@ body {
   font-family: var(--font-quicksand), sans-serif;
 }
 
+::selection {
+  background: rgba(240, 166, 60, 0.28);
+}
+
 /* Rendered markdown inside the note editor. */
 .markdown {
-  line-height: 1.7;
-  font-size: 1rem;
+  line-height: 1.8;
+  font-size: 1.0625rem;
+  color: #6f6f6b;
 }
 .markdown > * + * {
-  margin-top: 0.75em;
+  margin-top: 1em;
 }
 .markdown h1,
 .markdown h2,
 .markdown h3,
 .markdown h4 {
-  font-weight: 700;
-  line-height: 1.3;
-  margin-top: 1.25em;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 1.4em;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
 }
-.markdown h1 { font-size: 1.6rem; }
+.markdown h1 { font-size: 1.65rem; }
 .markdown h2 { font-size: 1.35rem; }
 .markdown h3 { font-size: 1.15rem; }
 .markdown a {
@@ -62,7 +69,7 @@ body {
 .markdown ol { list-style: decimal; }
 .markdown li + li { margin-top: 0.3em; }
 .markdown blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--card-active);
   padding-left: 1em;
   color: var(--muted);
 }
@@ -84,20 +91,44 @@ body {
   padding: 0;
 }
 .markdown hr {
-  border-color: #e7e2d6;
+  border-color: var(--hairline);
 }
 .markdown table {
   border-collapse: collapse;
 }
 .markdown th,
 .markdown td {
-  border: 1px solid #e7e2d6;
+  border: 1px solid var(--hairline);
   padding: 0.4em 0.8em;
   text-align: left;
 }
 .markdown input[type="checkbox"] {
-  accent-color: var(--accent);
-  margin-right: 0.45em;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid #d8d8d5;
+  background: #ffffff;
+  margin-right: 0.5em;
+  position: relative;
+  top: 2px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.markdown input[type="checkbox"]:checked {
+  background: var(--card-active);
+  border-color: var(--card-active);
+}
+.markdown input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 4.5px;
+  top: 1.5px;
+  width: 3.5px;
+  height: 7px;
+  border: solid #ffffff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
 }
 .markdown ul:has(input[type="checkbox"]) {
   list-style: none;
@@ -106,8 +137,27 @@ body {
 
 /* TipTap inline editor */
 .tiptap {
-  min-height: 100%;
+  min-height: 240px;
+  padding-bottom: 6rem;
   outline: none;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d6 transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #d9d9d6;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

@@ -5,6 +5,13 @@
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
+    },
+    "publicShares": {
+      "$token": {
+        ".read": true,
+        ".write": "auth != null && (newData.exists() ? newData.child('ownerId').val() === auth.uid : data.child('ownerId').val() === auth.uid)",
+        ".validate": "newData.child('ownerId').isString() && newData.child('workspaceId').isString() && newData.child('noteId').isString() && newData.child('updated_at').isString()"
+      }
     }
   }
 }

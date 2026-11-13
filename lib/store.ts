@@ -4,7 +4,28 @@ import { firebaseDatabase } from "./firebase";
 export type Workspace = { id: string; name: string; created_at: string };
 export type Note = { id: string; title: string; content: string; updated_at: string };
 
+// A note's share secret lives in the owner's private index; the public mirror is
+// only ever read through the exact token, so it can never be listed.
+export type ShareRecord = { token: string; createdAt: string };
+export type PublicShare = {
+  ownerId: string;
+  workspaceId: string;
+  noteId: string;
+  title: string;
+  content: string;
+  updated_at: string;
+};
+
 const now = () => new Date().toISOString();
+
+// 24 random bytes is far beyond guessable and fits in a URL as base64url.
+function shareToken() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
 
 const workspacesRef = (uid: string) =>
   ref(firebaseDatabase(), `users/${uid}/workspaces`);
@@ -53,15 +74,69 @@ export async function createNote(uid: string, workspaceId: string): Promise<Note
   return { id: node.key!, ...note };
 }
 
+// Creating a link writes the private index and the public mirror in one
+// multi-location update so the owner never sees a half-shared note.
+export async function createShare(uid: string, workspaceId: string, note: Note): Promise<string> {
+  const token = shareToken();
+  const createdAt = now();
+  await update(ref(firebaseDatabase()), {
+    [`users/${uid}/shares/${note.id}`]: { token, createdAt },
+    [`publicShares/${token}`]: {
+      ownerId: uid,
+      workspaceId,
+      noteId: note.id,
+      title: note.title,
+      content: note.content,
+      updated_at: note.updated_at,
+    },
+  });
+  return token;
+}
+
+// The token is only in the private index, so read it before removing both.
+export async function deleteShare(uid: string, noteId: string): Promise<void> {
+  const snap = await get(ref(firebaseDatabase(), `users/${uid}/shares/${noteId}`));
+  const token = (snap.val() as ShareRecord | null)?.token;
+  const updates: Record<string, null> = {
+    [`users/${uid}/shares/${noteId}`]: null,
+  };
+  if (token) updates[`publicShares/${token}`] = null;
+  await update(ref(firebaseDatabase()), updates);
+}
+
+export async function listShares(uid: string): Promise<Record<string, ShareRecord>> {
+  const snap = await get(ref(firebaseDatabase(), `users/${uid}/shares`));
+  return (snap.val() ?? {}) as Record<string, ShareRecord>;
+}
+
 export async function updateNote(
   uid: string,
   workspaceId: string,
   noteId: string,
   patch: { title: string; content: string },
+  share?: ShareRecord | null,
 ) {
-  await update(noteRef(uid, workspaceId, noteId), {
-    ...patch,
-    updated_at: now(),
+  const updated_at = now();
+  if (!share) {
+    await update(noteRef(uid, workspaceId, noteId), {
+      ...patch,
+      updated_at,
+    });
+    return;
+  }
+  await update(ref(firebaseDatabase()), {
+    [`users/${uid}/workspaces/${workspaceId}/notes/${noteId}`]: {
+      ...patch,
+      updated_at,
+    },
+    // Rebuilt from the caller's arguments so autosave needs no extra read.
+    [`publicShares/${share.token}`]: {
+      ownerId: uid,
+      workspaceId,
+      noteId,
+      ...patch,
+      updated_at,
+    },
   });
 }
 
